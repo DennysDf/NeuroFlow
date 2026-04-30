@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Categoria{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">{{ 'Nova' if mode == 'new' else 'Editar' }} categoria</h1>
+  <form method="post" class="card space-y-4">
+    {{ form.hidden_tag() }}
+    <div>{{ form.name.label(class_="label") }}{{ form.name(class_="input") }}</div>
+    <div>{{ form.description.label(class_="label") }}{{ form.description(class_="input") }}</div>
+    <div class="flex gap-2">
+      {{ form.submit(class_="btn-primary") }}
+      <a href="{{ url_for('professionals.categories', school_id=school_id) }}" class="btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

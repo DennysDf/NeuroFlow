@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Entrar — NeuroFlow{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto mt-16">
+  <div class="card">
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-brand-700">NeuroFlow</h1>
+      <p class="text-sm text-gray-500">Acesse sua conta</p>
+    </div>
+    <form method="post" class="space-y-4">
+      {{ form.hidden_tag() }}
+      <div>
+        {{ form.cpf.label(class_="label") }}
+        {{ form.cpf(class_="input") }}
+        {% for e in form.cpf.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+      </div>
+      <div>
+        {{ form.password.label(class_="label") }}
+        {{ form.password(class_="input") }}
+        {% for e in form.password.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+      </div>
+      {{ form.submit(class_="btn-primary w-full") }}
+    </form>
+  </div>
+</div>
+{% endblock %}

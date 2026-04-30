@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Builder — {{ form.name }}{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">{{ form.name }}</h1>
+      <p class="text-gray-500 text-sm">
+        Categoria: <strong>{{ form.category.name }}</strong> ·
+        Editando rascunho v{{ draft.version_number }}
+        {% if form.latest_published %}· última publicada: v{{ form.latest_published.version_number }}{% endif %}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <a class="btn-secondary" href="{{ url_for('forms.list_view', school_id=school_id) }}">Voltar</a>
+      <form method="post" action="{{ url_for('forms.builder_publish', school_id=school_id, form_id=form.id) }}" onsubmit="return confirm('Publicar nova versão? Versões publicadas são imutáveis.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button class="btn-primary">Publicar versão {{ draft.version_number }}</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-4">
+    <!-- Palette -->
+    <aside class="col-span-3 card">
+      <h2 class="font-semibold mb-3 text-sm uppercase tracking-wide text-gray-500">Adicionar campo</h2>
+      <div class="space-y-2">
+        {% for ft in field_types %}
+          <form method="post" hx-post="{{ url_for('forms.builder_add_field', school_id=school_id, form_id=form.id) }}" hx-target="#canvas" hx-swap="outerHTML">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="type" value="{{ ft.value }}"/>
+            <button class="w-full text-left px-3 py-2 border border-dashed rounded-md hover:bg-brand-50 hover:border-brand-300 text-sm">
+              + {{ ft.label }}
+            </button>
+          </form>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <!-- Canvas -->
+    <section class="col-span-6">
+      {% include "forms/_canvas.html" %}
+    </section>
+
+    <!-- Inspector -->
+    <aside class="col-span-3 card">
+      <h2 class="font-semibold mb-3 text-sm uppercase tracking-wide text-gray-500">Propriedades</h2>
+      <div id="inspector" class="text-sm text-gray-500">
+        Selecione um campo no centro para editar suas propriedades.
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/builder.js') }}"></script>
+<script>
+  window.NEUROFLOW_FORM_BUILDER = {
+    reorderUrl: "{{ url_for('forms.builder_reorder', school_id=school_id, form_id=form.id) }}",
+  };
+</script>
+{% endblock %}

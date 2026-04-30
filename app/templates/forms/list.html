@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Formulários{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Formulários de atendimento</h1>
+  <a class="btn-primary" href="{{ url_for('forms.new', school_id=school_id) }}">+ Novo formulário</a>
+</div>
+<div class="card p-0 overflow-hidden">
+  <table class="table">
+    <thead><tr><th>Nome</th><th>Categoria</th><th>Versão publicada</th><th>Rascunho</th><th></th></tr></thead>
+    <tbody>
+      {% for f in forms %}
+        <tr>
+          <td>{{ f.name }}</td>
+          <td>{{ f.category.name }}</td>
+          <td>{% if f.latest_published %}v{{ f.latest_published.version_number }}{% else %}<span class="text-gray-400">—</span>{% endif %}</td>
+          <td>{% if f.draft %}v{{ f.draft.version_number }} (rascunho){% else %}<span class="text-gray-400">—</span>{% endif %}</td>
+          <td class="text-right"><a class="text-brand-600 hover:underline" href="{{ url_for('forms.builder', school_id=school_id, form_id=f.id) }}">abrir builder</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-center text-gray-500">Nenhum formulário cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Usuários da escola{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Usuários da escola</h1>
+  <a class="btn-primary" href="{{ url_for('users.school_users_new', school_id=school_id) }}">+ Novo usuário</a>
+</div>
+<div class="card p-0 overflow-hidden">
+  <table class="table">
+    <thead><tr><th>Nome</th><th>CPF</th><th>E-mail</th><th>Perfil</th><th></th></tr></thead>
+    <tbody>
+      {% for user, m in rows %}
+        <tr>
+          <td>{{ user.full_name }}</td>
+          <td class="font-mono">{{ user.cpf }}</td>
+          <td>{{ user.email or '-' }}</td>
+          <td><span class="badge bg-brand-100 text-brand-700">{{ m.role.label }}</span></td>
+          <td class="text-right">
+            <form method="post" action="{{ url_for('users.membership_delete', school_id=school_id, membership_id=m.id) }}" onsubmit="return confirm('Remover vínculo?');" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button class="text-red-600 hover:underline">remover</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-center text-gray-500">Nenhum usuário cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

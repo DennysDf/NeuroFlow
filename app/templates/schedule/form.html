@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Novo compromisso{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">Novo compromisso</h1>
+  <form method="post" class="card space-y-4">
+    {{ form.hidden_tag() }}
+    <div>{{ form.professional_id.label(class_="label") }}{{ form.professional_id(class_="input") }}</div>
+    <div>{{ form.student_id.label(class_="label") }}{{ form.student_id(class_="input") }}</div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>{{ form.starts_at.label(class_="label") }}{{ form.starts_at(class_="input") }}</div>
+      <div>{{ form.ends_at.label(class_="label") }}{{ form.ends_at(class_="input") }}</div>
+    </div>
+    <div>{{ form.location.label(class_="label") }}{{ form.location(class_="input") }}</div>
+    <div>{{ form.notes.label(class_="label") }}{{ form.notes(class_="input", rows=3) }}</div>
+    <div class="flex gap-2">
+      {{ form.submit(class_="btn-primary") }}
+      <a class="btn-secondary" href="{{ url_for('schedule.list_view', school_id=school_id) }}">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

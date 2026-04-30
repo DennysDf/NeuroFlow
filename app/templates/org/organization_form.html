@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Organização{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">Organização</h1>
+  <form method="post" class="card space-y-4">
+    {{ form.hidden_tag() }}
+    <div>{{ form.name.label(class_="label") }}{{ form.name(class_="input") }}</div>
+    <div>{{ form.cnpj.label(class_="label") }}{{ form.cnpj(class_="input") }}</div>
+    {{ form.submit(class_="btn-primary") }}
+  </form>
+</div>
+{% endblock %}

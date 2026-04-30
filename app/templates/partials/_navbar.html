@@ -1,0 +1,41 @@
+{% set role = current_context.role %}
+{% set scope = current_context.scope %}
+<nav class="bg-white border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
+    <div class="flex items-center space-x-6">
+      <a href="{{ url_for('dashboard.home') }}" class="font-bold text-brand-700">NeuroFlow</a>
+      <div class="hidden md:flex items-center space-x-4 text-sm">
+        {% if role == RoleEnum.ORG_SUPER_ADMIN %}
+          <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('org.schools_list') }}">Escolas</a>
+        {% endif %}
+        {% if current_context.scope_type == ScopeTypeEnum.SCHOOL %}
+          {% set sid = current_context.scope_id %}
+          <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('schools.detail', school_id=sid) }}">Escola</a>
+          {% if role in (RoleEnum.SCHOOL_ADMIN, RoleEnum.ADMINISTRATIVE, RoleEnum.ORG_SUPER_ADMIN) %}
+            <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('users.school_users', school_id=sid) }}">Usuários</a>
+            <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('professionals.categories', school_id=sid) }}">Categorias</a>
+            <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('professionals.list_view', school_id=sid) }}">Profissionais</a>
+          {% endif %}
+          <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('students.list_view', school_id=sid) }}">Alunos</a>
+          {% if role in (RoleEnum.SCHOOL_ADMIN, RoleEnum.ADMINISTRATIVE, RoleEnum.ORG_SUPER_ADMIN) %}
+            <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('forms.list_view', school_id=sid) }}">Formulários</a>
+          {% endif %}
+          <a class="text-gray-600 hover:text-gray-900" href="{{ url_for('schedule.list_view', school_id=sid) }}">Agenda</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="flex items-center space-x-3 text-sm">
+      <span class="hidden md:inline-block badge bg-brand-100 text-brand-700">{{ role.label }}</span>
+      <span class="text-gray-600">{{ scope.name if scope else '' }}</span>
+      <span class="text-gray-400">|</span>
+      <span class="text-gray-700">{{ current_user.full_name }}</span>
+      {% if current_user.memberships|length > 1 %}
+        <a href="{{ url_for('auth.switch_context') }}" class="text-brand-600 hover:underline">Trocar contexto</a>
+      {% endif %}
+      <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button class="text-gray-600 hover:text-red-600">Sair</button>
+      </form>
+    </div>
+  </div>
+</nav>

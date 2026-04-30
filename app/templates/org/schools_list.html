@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Escolas — {{ organization.name }}{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Escolas</h1>
+  <a href="{{ url_for('org.schools_new') }}" class="btn-primary">+ Nova escola</a>
+</div>
+<div class="card p-0 overflow-hidden">
+  <table class="table">
+    <thead><tr><th>Nome</th><th>Endereço</th><th>Telefone</th><th></th></tr></thead>
+    <tbody>
+      {% for s in schools %}
+        <tr>
+          <td>{{ s.name }}</td>
+          <td>{{ s.address or '-' }}</td>
+          <td>{{ s.phone or '-' }}</td>
+          <td class="text-right"><a class="text-brand-600 hover:underline" href="{{ url_for('org.schools_edit', school_id=s.id) }}">editar</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="text-center text-gray-500">Nenhuma escola cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

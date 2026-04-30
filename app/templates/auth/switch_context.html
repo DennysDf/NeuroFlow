@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Selecionar contexto — NeuroFlow{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-12">
+  <div class="card">
+    <h1 class="text-xl font-semibold mb-4">Escolha o contexto de trabalho</h1>
+    <form method="post" class="space-y-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      {% for m in memberships %}
+        {% set scope_obj = (m.scope_type == ScopeTypeEnum.ORG and (current_user.memberships and m)) %}
+        <label class="flex items-start gap-3 p-3 border rounded-md hover:bg-gray-50 cursor-pointer">
+          <input type="radio" name="membership_id" value="{{ m.id }}" class="mt-1"/>
+          <div>
+            <div class="font-medium">{{ m.role.label }}</div>
+            <div class="text-sm text-gray-500">
+              {{ 'Organização' if m.scope_type == ScopeTypeEnum.ORG else 'Escola' }} #{{ m.scope_id }}
+            </div>
+          </div>
+        </label>
+      {% endfor %}
+      <button class="btn-primary w-full mt-4" type="submit">Continuar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

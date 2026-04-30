@@ -1,0 +1,64 @@
+<div id="canvas" class="card space-y-2" data-form-id="{{ form.id }}">
+  {% if not draft.fields %}
+    <div class="text-center text-gray-500 py-12 border-2 border-dashed rounded-md">
+      Arraste ou clique em um tipo de campo à esquerda para começar.
+    </div>
+  {% else %}
+    <ul id="field-list" class="space-y-2">
+      {% for field in draft.fields %}
+        <li class="border rounded-md bg-white" data-field-id="{{ field.id }}">
+          <div class="flex items-center justify-between px-3 py-2 bg-gray-50 border-b">
+            <div class="flex items-center gap-2">
+              <span class="cursor-move text-gray-400 select-none">⋮⋮</span>
+              <span class="badge bg-brand-100 text-brand-700">{{ field.type.label }}</span>
+              <span class="font-medium">{{ field.label }}</span>
+              {% if field.required %}<span class="text-red-500 text-xs">*obrigatório</span>{% endif %}
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <button type="button"
+                      class="text-brand-600 hover:underline"
+                      hx-get="{{ url_for('forms.builder', school_id=school_id, form_id=form.id) }}"
+                      onclick="event.preventDefault(); window.NEUROFLOW_openInspector({{ field.id }}, '{{ url_for('forms.builder_update_field', school_id=school_id, form_id=form.id, field_id=field.id) }}', '{{ url_for('forms.builder_delete_field', school_id=school_id, form_id=form.id, field_id=field.id) }}', '{{ field.type.value }}', {{ field.label|tojson }}, {{ (field.help_text or '')|tojson }}, {{ field.required|tojson }}, {{ (field.options|map(attribute='label')|list)|tojson }}); return false;">
+                editar
+              </button>
+              <form method="post" hx-post="{{ url_for('forms.builder_delete_field', school_id=school_id, form_id=form.id, field_id=field.id) }}" hx-target="#canvas" hx-swap="outerHTML" onsubmit="return confirm('Remover campo?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button class="text-red-600 hover:underline">remover</button>
+              </form>
+            </div>
+          </div>
+          <div class="px-3 py-3 text-sm text-gray-600">
+            {% if field.help_text %}<div class="text-xs text-gray-400 mb-1">{{ field.help_text }}</div>{% endif %}
+            {% if field.type.value == 'SHORT_TEXT' %}
+              <input class="input bg-gray-50" disabled placeholder="Resposta curta"/>
+            {% elif field.type.value == 'LONG_TEXT' %}
+              <textarea class="input bg-gray-50" disabled rows="2" placeholder="Resposta longa"></textarea>
+            {% elif field.type.value == 'NUMBER' %}
+              <input class="input bg-gray-50" type="number" disabled placeholder="0"/>
+            {% elif field.type.value == 'DATE' %}
+              <input class="input bg-gray-50" type="date" disabled/>
+            {% elif field.type.value in ('SINGLE_CHOICE','MULTI_CHOICE') %}
+              <ul class="space-y-1">
+                {% for o in field.options %}
+                  <li class="flex items-center gap-2 text-sm">
+                    <input disabled type="{{ 'radio' if field.type.value == 'SINGLE_CHOICE' else 'checkbox' }}"/> {{ o.label }}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% elif field.type.value == 'DROPDOWN' %}
+              <select class="input bg-gray-50" disabled>
+                {% for o in field.options %}<option>{{ o.label }}</option>{% endfor %}
+              </select>
+            {% elif field.type.value == 'SCALE_1_5' %}
+              <div class="flex gap-2">{% for n in range(1,6) %}<button type="button" disabled class="border px-3 py-1 rounded">{{ n }}</button>{% endfor %}</div>
+            {% elif field.type.value == 'CHECKBOX' %}
+              <label class="flex items-center gap-2 text-sm"><input type="checkbox" disabled/> {{ field.label }}</label>
+            {% elif field.type.value == 'SECTION_HEADER' %}
+              <h3 class="text-base font-semibold">{{ field.label }}</h3>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>

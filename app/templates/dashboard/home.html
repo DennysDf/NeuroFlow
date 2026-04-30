@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Painel — NeuroFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold">Olá, {{ current_user.full_name.split(' ')[0] }}!</h1>
+    <p class="text-gray-500">{{ ctx.role.label }} — {{ ctx.scope.name }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {% if 'schools' in stats %}
+      <div class="card"><div class="text-sm text-gray-500">Escolas</div><div class="text-3xl font-bold">{{ stats.schools }}</div></div>
+    {% endif %}
+    <div class="card"><div class="text-sm text-gray-500">Alunos</div><div class="text-3xl font-bold">{{ stats.students }}</div></div>
+    <div class="card"><div class="text-sm text-gray-500">Profissionais</div><div class="text-3xl font-bold">{{ stats.professionals }}</div></div>
+    {% if 'attendances' in stats %}
+      <div class="card"><div class="text-sm text-gray-500">Atendimentos</div><div class="text-3xl font-bold">{{ stats.attendances }}</div></div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="font-semibold mb-2">Ações rápidas</h2>
+    <div class="flex flex-wrap gap-2 text-sm">
+      {% if ctx.role == RoleEnum.ORG_SUPER_ADMIN %}
+        <a class="btn-secondary" href="{{ url_for('org.schools_list') }}">Gerenciar escolas</a>
+      {% endif %}
+      {% if ctx.scope_type == ScopeTypeEnum.SCHOOL %}
+        <a class="btn-secondary" href="{{ url_for('students.list_view', school_id=ctx.scope_id) }}">Alunos</a>
+        {% if ctx.role != RoleEnum.PROFESSIONAL %}
+          <a class="btn-secondary" href="{{ url_for('forms.list_view', school_id=ctx.scope_id) }}">Formulários</a>
+          <a class="btn-secondary" href="{{ url_for('users.school_users', school_id=ctx.scope_id) }}">Usuários</a>
+        {% endif %}
+        <a class="btn-secondary" href="{{ url_for('schedule.list_view', school_id=ctx.scope_id) }}">Agenda</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

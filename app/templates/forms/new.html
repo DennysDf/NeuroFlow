@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Novo formulário{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">Novo formulário</h1>
+  <form method="post" class="card space-y-4">
+    {{ form.hidden_tag() }}
+    <div>{{ form.name.label(class_="label") }}{{ form.name(class_="input") }}</div>
+    <div>{{ form.description.label(class_="label") }}{{ form.description(class_="input", rows=3) }}</div>
+    <div>{{ form.category_id.label(class_="label") }}{{ form.category_id(class_="input") }}</div>
+    <div class="flex gap-2">
+      {{ form.submit(class_="btn-primary") }}
+      <a class="btn-secondary" href="{{ url_for('forms.list_view', school_id=school_id) }}">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

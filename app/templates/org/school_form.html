@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Nova' if mode == 'new' else 'Editar' }} escola{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">{{ 'Nova escola' if mode == 'new' else 'Editar escola' }}</h1>
+  <form method="post" class="card space-y-4">
+    {{ form.hidden_tag() }}
+    <div>{{ form.name.label(class_="label") }}{{ form.name(class_="input") }}</div>
+    <div>{{ form.address.label(class_="label") }}{{ form.address(class_="input") }}</div>
+    <div>{{ form.phone.label(class_="label") }}{{ form.phone(class_="input") }}</div>
+    <div class="flex gap-2">
+      {{ form.submit(class_="btn-primary") }}
+      <a href="{{ url_for('org.schools_list') }}" class="btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

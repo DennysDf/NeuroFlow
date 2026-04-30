@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Alunos{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Alunos</h1>
+  {% if current_context.role in (RoleEnum.ORG_SUPER_ADMIN, RoleEnum.SCHOOL_ADMIN, RoleEnum.ADMINISTRATIVE) %}
+    <a class="btn-primary" href="{{ url_for('students.new', school_id=school_id) }}">+ Novo aluno</a>
+  {% endif %}
+</div>
+<div class="card p-0 overflow-hidden">
+  <table class="table">
+    <thead><tr><th>Nome</th><th>Documento</th><th>Responsável</th><th>Equipe</th><th></th></tr></thead>
+    <tbody>
+      {% for s in students %}
+        <tr>
+          <td><a class="text-brand-700 hover:underline" href="{{ url_for('students.detail', student_id=s.id) }}">{{ s.full_name }}</a></td>
+          <td>{{ s.document or '-' }}</td>
+          <td>{{ s.guardian_name or '-' }}</td>
+          <td>{{ s.team_members|length }}</td>
+          <td class="text-right"><a class="text-brand-600 hover:underline" href="{{ url_for('students.detail', student_id=s.id) }}">abrir</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-center text-gray-500">Nenhum aluno cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

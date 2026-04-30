@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Profissionais{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Profissionais</h1>
+  <a class="btn-primary" href="{{ url_for('professionals.professionals_new', school_id=school_id) }}">+ Novo profissional</a>
+</div>
+<div class="card p-0 overflow-hidden">
+  <table class="table">
+    <thead><tr><th>Nome</th><th>CPF</th><th>Categoria</th><th>Registro</th><th></th></tr></thead>
+    <tbody>
+      {% for p in professionals %}
+        <tr>
+          <td>{{ p.user.full_name }}</td>
+          <td class="font-mono">{{ p.user.cpf }}</td>
+          <td>{{ p.category.name }}</td>
+          <td>{{ p.registration_number or '-' }}</td>
+          <td class="text-right">
+            <form method="post" action="{{ url_for('professionals.professionals_delete', school_id=school_id, prof_id=p.id) }}" onsubmit="return confirm('Remover profissional?');" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <button class="text-red-600 hover:underline">remover</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-center text-gray-500">Nenhum profissional cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
