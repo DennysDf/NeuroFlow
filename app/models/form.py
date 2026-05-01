@@ -26,6 +26,7 @@ class Form(Model, TimestampMixin):
     )
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     organization = relationship("Organization", back_populates="forms")
     category = relationship("ProfessionalCategory", back_populates="forms")

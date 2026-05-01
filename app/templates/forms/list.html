@@ -2,23 +2,50 @@
 {% block title %}Formulários{% endblock %}
 {% block content %}
 <div class="flex items-center justify-between mb-4">
-  <h1 class="text-2xl font-bold">Formulários de atendimento</h1>
+  <div>
+    <h1 class="text-2xl font-bold">Formulários de atendimento</h1>
+    <p class="text-sm text-gray-500">Cada categoria pode ter <strong>1 formulário ativo</strong> usado nos atendimentos. Os demais ficam cadastrados como histórico.</p>
+  </div>
   <a class="btn-primary" href="{{ url_for('forms.new', school_id=school_id) }}">+ Novo formulário</a>
 </div>
 <div class="card p-0 overflow-hidden">
   <table class="table">
-    <thead><tr><th>Nome</th><th>Categoria</th><th>Versão publicada</th><th>Rascunho</th><th></th></tr></thead>
+    <thead><tr><th>Nome</th><th>Categoria</th><th>Status</th><th>Versão publicada</th><th>Rascunho</th><th class="text-right">Ações</th></tr></thead>
     <tbody>
       {% for f in forms %}
         <tr>
-          <td>{{ f.name }}</td>
+          <td>
+            <div class="font-medium">{{ f.name }}</div>
+            {% if f.description %}<div class="text-xs text-gray-500">{{ f.description }}</div>{% endif %}
+          </td>
           <td>{{ f.category.name }}</td>
+          <td>
+            {% if f.is_active %}
+              <span class="badge bg-green-100 text-green-700">Ativo</span>
+            {% else %}
+              <span class="badge bg-gray-100 text-gray-600">Inativo</span>
+            {% endif %}
+          </td>
           <td>{% if f.latest_published %}v{{ f.latest_published.version_number }}{% else %}<span class="text-gray-400">—</span>{% endif %}</td>
           <td>{% if f.draft %}v{{ f.draft.version_number }} (rascunho){% else %}<span class="text-gray-400">—</span>{% endif %}</td>
-          <td class="text-right"><a class="text-brand-600 hover:underline" href="{{ url_for('forms.builder', school_id=school_id, form_id=f.id) }}">abrir builder</a></td>
+          <td class="text-right space-x-2">
+            <a class="text-brand-600 hover:underline" href="{{ url_for('forms.preview', school_id=school_id, form_id=f.id) }}">visualizar</a>
+            <a class="text-brand-600 hover:underline" href="{{ url_for('forms.builder', school_id=school_id, form_id=f.id) }}">builder</a>
+            {% if f.is_active %}
+              <form method="post" action="{{ url_for('forms.deactivate', school_id=school_id, form_id=f.id) }}" class="inline" onsubmit="return confirm('Desativar este formulário? Profissionais da categoria deixarão de conseguir realizar atendimentos até que outro seja ativado.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button class="text-yellow-700 hover:underline">desativar</button>
+              </form>
+            {% else %}
+              <form method="post" action="{{ url_for('forms.activate', school_id=school_id, form_id=f.id) }}" class="inline" {% if not f.latest_published %}title="Publique uma versão antes de ativar"{% endif %}>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button class="text-green-700 hover:underline" {% if not f.latest_published %}disabled style="opacity:0.4;cursor:not-allowed"{% endif %}>ativar</button>
+              </form>
+            {% endif %}
+          </td>
         </tr>
       {% else %}
-        <tr><td colspan="5" class="text-center text-gray-500">Nenhum formulário cadastrado.</td></tr>
+        <tr><td colspan="6" class="text-center text-gray-500">Nenhum formulário cadastrado.</td></tr>
       {% endfor %}
     </tbody>
   </table>

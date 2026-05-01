@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Preview — {{ form.name }}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">{{ form.name }}</h1>
+      <p class="text-sm text-gray-500">
+        Categoria: <strong>{{ form.category.name }}</strong> ·
+        Visualizando v{{ version.version_number }} ({{ version.status.value }})
+        {% if form.is_active %} · <span class="badge bg-green-100 text-green-700">Ativo</span>{% endif %}
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <a class="btn-secondary" href="{{ url_for('forms.list_view', school_id=school_id) }}">Voltar</a>
+      <a class="btn-secondary" href="{{ url_for('forms.builder', school_id=school_id, form_id=form.id) }}">Builder</a>
+    </div>
+  </div>
+
+  {% if all_versions|length > 1 %}
+    <div class="card flex items-center gap-2 text-sm">
+      <span class="text-gray-500">Versão:</span>
+      {% for v in all_versions %}
+        {% set source = ('v' ~ v.version_number) %}
+        <a href="?source={{ source }}"
+           class="px-2 py-1 rounded {% if v.id == version.id %}bg-brand-100 text-brand-700{% else %}hover:bg-gray-100 text-gray-700{% endif %}">
+          v{{ v.version_number }}{% if v.status.value == 'DRAFT' %} (rascunho){% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="card">
+    {% include "forms/_preview_body.html" %}
+  </div>
+</div>
+{% endblock %}

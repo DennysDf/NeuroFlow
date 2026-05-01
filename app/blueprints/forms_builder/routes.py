@@ -21,7 +21,13 @@ from ...permissions import (
     require_role,
 )
 from .forms import FormCreateForm
-from .services import add_field, get_or_create_draft, publish_draft, serialize_version
+from .services import (
+    activate_form,
+    add_field,
+    get_or_create_draft,
+    publish_draft,
+    serialize_version,
+)
 
 forms_bp = Blueprint("forms", __name__)
 
@@ -227,3 +233,71 @@ def builder_publish(school_id: int, form_id: int):
     db.session.commit()
     flash(f"Versão {draft.version_number} publicada.", "success")
     return redirect(url_for("forms.builder", school_id=school_id, form_id=form_id))
+
+
+@forms_bp.route(
+    "/schools/<int:school_id>/forms/<int:form_id>/activate", methods=["POST"]
+)
+@login_required
+@require_role(*ADMIN_ROLES)
+def activate(school_id: int, form_id: int):
+    f = _load_form(school_id, form_id)
+    if not f.latest_published:
+        flash(
+            "Publique uma versão do formulário antes de ativá-lo para atendimento.",
+            "warning",
+        )
+        return redirect(url_for("forms.list_view", school_id=school_id))
+    activate_form(db.session, f)
+    db.session.commit()
+    flash(
+        f"Formulário '{f.name}' agora é o ativo para a categoria {f.category.name}.",
+        "success",
+    )
+    return redirect(url_for("forms.list_view", school_id=school_id))
+
+
+@forms_bp.route(
+    "/schools/<int:school_id>/forms/<int:form_id>/deactivate", methods=["POST"]
+)
+@login_required
+@require_role(*ADMIN_ROLES)
+def deactivate(school_id: int, form_id: int):
+    f = _load_form(school_id, form_id)
+    f.is_active = False
+    db.session.commit()
+    flash(f"Formulário '{f.name}' desativado.", "info")
+    return redirect(url_for("forms.list_view", school_id=school_id))
+
+
+@forms_bp.route("/schools/<int:school_id>/forms/<int:form_id>/preview")
+@login_required
+@require_role(*ADMIN_ROLES)
+def preview(school_id: int, form_id: int):
+    f = _load_form(school_id, form_id)
+    raw = (request.args.get("source") or "published").lower()
+    version = None
+    if raw == "draft":
+        version = f.draft
+    elif raw.startswith("v"):
+        try:
+            n = int(raw[1:])
+            version = next((v for v in f.versions if v.version_number == n), None)
+        except ValueError:
+            version = None
+    if not version:
+        version = f.latest_published or f.draft
+    if not version:
+        flash("Este formulário ainda não tem campos.", "warning")
+        return redirect(url_for("forms.builder", school_id=school_id, form_id=form_id))
+    is_partial = request.args.get("partial") == "1"
+    template = "forms/_preview_body.html" if is_partial else "forms/preview.html"
+    return render_template(
+        template,
+        form=f,
+        version=version,
+        school_id=school_id,
+        all_versions=sorted(
+            f.versions, key=lambda v: v.version_number, reverse=True
+        ),
+    )

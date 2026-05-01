@@ -65,6 +65,24 @@ def serialize_version(version: FormVersion) -> dict:
     }
 
 
+def activate_form(session: Session, form: Form) -> None:
+    """Mark this form active and deactivate all sibling forms in the same category."""
+    siblings = (
+        session.query(Form)
+        .filter(
+            Form.organization_id == form.organization_id,
+            Form.category_id == form.category_id,
+            Form.id != form.id,
+            Form.is_active.is_(True),
+        )
+        .all()
+    )
+    for s in siblings:
+        s.is_active = False
+    form.is_active = True
+    session.flush()
+
+
 def publish_draft(session: Session, draft: FormVersion) -> None:
     if draft.status != FormStatusEnum.DRAFT:
         raise ValueError("Apenas versões em rascunho podem ser publicadas.")

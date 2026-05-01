@@ -11,12 +11,30 @@
         {% if form.latest_published %}· última publicada: v{{ form.latest_published.version_number }}{% endif %}
       </p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2" x-data="{ showPreview: false, previewHtml: '' }">
       <a class="btn-secondary" href="{{ url_for('forms.list_view', school_id=school_id) }}">Voltar</a>
+      <button type="button" class="btn-secondary"
+              @click="showPreview = true; previewHtml = 'Carregando...'; fetch('{{ url_for('forms.preview', school_id=school_id, form_id=form.id) }}?source=draft&partial=1').then(r => r.text()).then(h => previewHtml = h);">
+        Pré-visualizar
+      </button>
       <form method="post" action="{{ url_for('forms.builder_publish', school_id=school_id, form_id=form.id) }}" onsubmit="return confirm('Publicar nova versão? Versões publicadas são imutáveis.');">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <button class="btn-primary">Publicar versão {{ draft.version_number }}</button>
       </form>
+
+      <template x-teleport="body">
+        <div x-show="showPreview" x-cloak
+             class="fixed inset-0 z-50 bg-black/50 flex items-start justify-center overflow-y-auto p-6"
+             @click.self="showPreview = false">
+          <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full p-6 mt-10">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold">Pré-visualização (rascunho v{{ draft.version_number }})</h2>
+              <button class="text-gray-500 hover:text-gray-800" @click="showPreview = false">✕</button>
+            </div>
+            <div x-html="previewHtml"></div>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 

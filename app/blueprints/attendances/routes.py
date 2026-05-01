@@ -58,25 +58,27 @@ def new(student_id: int):
     prof = current_professional()
     if not prof:
         abort(403)
-    # only forms of professional category, with published version
-    available = (
+    # only the ACTIVE form of the professional's category, with a published version
+    active_form = (
         db.session.query(Form)
         .filter(
             Form.organization_id == student.school.organization_id,
             Form.category_id == prof.category_id,
+            Form.is_active.is_(True),
         )
-        .all()
+        .first()
     )
-    version_choices = []
-    for f in available:
-        v = f.latest_published
-        if v:
-            version_choices.append((v.id, f"{f.name} (v{v.version_number})"))
+    active_version = active_form.latest_published if active_form else None
+    version_choices = (
+        [(active_version.id, f"{active_form.name} (v{active_version.version_number})")]
+        if active_version
+        else []
+    )
     form = AttendanceStartForm()
     form.form_version_id.choices = version_choices
     if not version_choices:
         flash(
-            "Não há formulários publicados para a sua categoria. Solicite ao administrador.",
+            "Não há formulário ativo publicado para a sua categoria. Solicite ao administrador.",
             "warning",
         )
     if form.validate_on_submit():
@@ -84,6 +86,8 @@ def new(student_id: int):
         if not version or version.status != FormStatusEnum.PUBLISHED:
             abort(400)
         if version.form.category_id != prof.category_id:
+            abort(403)
+        if not version.form.is_active:
             abort(403)
         att = Attendance(
             student_id=student.id,

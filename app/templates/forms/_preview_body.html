@@ -1,0 +1,64 @@
+{# Renders a read-only preview of a FormVersion. Used by /preview page and the builder modal. #}
+<div class="space-y-5">
+  {% if form.description %}
+    <p class="text-sm text-gray-600">{{ form.description }}</p>
+  {% endif %}
+  {% if not version.fields %}
+    <p class="text-sm text-gray-500 italic">Esta versão ainda não tem campos.</p>
+  {% endif %}
+  {% for field in version.fields %}
+    {% if field.type.value == 'SECTION_HEADER' %}
+      <h3 class="text-lg font-semibold border-b pb-1">{{ field.label }}</h3>
+    {% else %}
+      <div>
+        <label class="label">
+          {{ field.label }}{% if field.required %} <span class="text-red-500">*</span>{% endif %}
+        </label>
+        {% if field.help_text %}<div class="text-xs text-gray-400 mb-1">{{ field.help_text }}</div>{% endif %}
+
+        {% if field.type.value == 'SHORT_TEXT' %}
+          <input class="input bg-gray-50" disabled placeholder="Resposta curta"/>
+        {% elif field.type.value == 'LONG_TEXT' %}
+          <textarea class="input bg-gray-50" rows="3" disabled placeholder="Resposta longa"></textarea>
+        {% elif field.type.value == 'NUMBER' %}
+          <input class="input bg-gray-50" type="number" disabled placeholder="0"/>
+        {% elif field.type.value == 'DATE' %}
+          <input class="input bg-gray-50" type="date" disabled/>
+        {% elif field.type.value == 'SINGLE_CHOICE' %}
+          <div class="space-y-1">
+            {% for o in field.options %}
+              <label class="flex items-center gap-2 text-sm">
+                <input type="radio" disabled/> {{ o.label }}
+              </label>
+            {% endfor %}
+          </div>
+        {% elif field.type.value == 'MULTI_CHOICE' %}
+          <div class="space-y-1">
+            {% for o in field.options %}
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" disabled/> {{ o.label }}
+              </label>
+            {% endfor %}
+          </div>
+        {% elif field.type.value == 'DROPDOWN' %}
+          <select class="input bg-gray-50" disabled>
+            <option>--</option>
+            {% for o in field.options %}<option>{{ o.label }}</option>{% endfor %}
+          </select>
+        {% elif field.type.value == 'SCALE_1_5' %}
+          <div class="flex gap-2">
+            {% for n in range(1, 6) %}
+              <label class="border px-3 py-1 rounded text-sm">
+                <input type="radio" disabled/> {{ n }}
+              </label>
+            {% endfor %}
+          </div>
+        {% elif field.type.value == 'CHECKBOX' %}
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" disabled/> {{ field.label }}
+          </label>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
