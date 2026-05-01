@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}NeuroFlow{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+  <script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js" defer></script>
+  <script src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.body.addEventListener("htmx:configRequest", (evt) => {
+        evt.detail.headers["X-CSRFToken"] = document
+          .querySelector('meta[name="csrf-token"]')
+          .getAttribute("content");
+      });
+    });
+  </script>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900">
+  {% if current_user.is_authenticated and current_context %}
+    {% include "partials/_navbar.html" %}
+  {% endif %}
+
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2 mb-4">
+          {% for category, msg in messages %}
+            <div class="rounded-md p-3 text-sm
+              {% if category == 'danger' %}bg-red-100 text-red-800
+              {% elif category == 'success' %}bg-green-100 text-green-800
+              {% elif category == 'warning' %}bg-yellow-100 text-yellow-800
+              {% else %}bg-blue-100 text-blue-800{% endif %}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Equipe — {{ student.full_name }}{% endblock %}
+{% block content %}
+<div class="space-y-4 max-w-3xl">
+  <div>
+    <h1 class="text-2xl font-bold">Equipe do aluno</h1>
+    <p class="text-gray-500 text-sm">{{ student.full_name }}</p>
+  </div>
+
+  <div class="card">
+    <h2 class="font-semibold mb-3">Membros atuais</h2>
+    <ul class="divide-y">
+      {% for tm in student.team_members %}
+        <li class="flex items-center justify-between py-2">
+          <div>
+            <div class="font-medium">{{ tm.professional.user.full_name }}</div>
+            <div class="text-xs text-gray-500">{{ tm.professional.category.name }}</div>
+          </div>
+          <form method="post" action="{{ url_for('students.team_delete', student_id=student.id, member_id=tm.id) }}" onsubmit="return confirm('Remover da equipe?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button class="text-red-600 hover:underline text-sm">remover</button>
+          </form>
+        </li>
+      {% else %}
+        <li class="text-gray-500 text-sm py-2">Nenhum profissional na equipe.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <form method="post" class="card space-y-3">
+    {{ form.hidden_tag() }}
+    <h2 class="font-semibold">Adicionar profissional</h2>
+    <div>{{ form.professional_id.label(class_="label") }}{{ form.professional_id(class_="input") }}</div>
+    {{ form.submit(class_="btn-primary") }}
+  </form>
+</div>
+{% endblock %}

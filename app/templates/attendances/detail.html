@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Atendimento #{{ attendance.id }}{% endblock %}
+{% block content %}
+{% set v = attendance.form_version %}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">{{ v.form.name }}</h1>
+      <p class="text-gray-500 text-sm">
+        {{ attendance.student.full_name }} · {{ attendance.professional.user.full_name }} ·
+        {{ attendance.started_at.strftime('%d/%m/%Y %H:%M') }} · v{{ v.version_number }}
+      </p>
+    </div>
+    <span class="badge {% if attendance.is_submitted %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+      {{ 'Submetido' if attendance.is_submitted else 'Rascunho' }}
+    </span>
+  </div>
+
+  <form method="post" class="card space-y-5">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    {% for field in v.fields %}
+      {% set ans = answers.get(field.id) %}
+      {% if field.type.value == 'SECTION_HEADER' %}
+        <h3 class="text-lg font-semibold border-b pb-1">{{ field.label }}</h3>
+      {% else %}
+        <div>
+          <label class="label">
+            {{ field.label }}{% if field.required %} <span class="text-red-500">*</span>{% endif %}
+          </label>
+          {% if field.help_text %}<div class="text-xs text-gray-400 mb-1">{{ field.help_text }}</div>{% endif %}
+
+          {% set fname = "field_" ~ field.id %}
+          {% if field.type.value == 'SHORT_TEXT' %}
+            <input class="input" name="{{ fname }}" value="{{ ans.value_text or '' if ans else '' }}" {% if not editable %}disabled{% endif %}/>
+          {% elif field.type.value == 'LONG_TEXT' %}
+            <textarea class="input" rows="3" name="{{ fname }}" {% if not editable %}disabled{% endif %}>{{ ans.value_text or '' if ans else '' }}</textarea>
+          {% elif field.type.value == 'NUMBER' %}
+            <input class="input" type="number" step="any" name="{{ fname }}" value="{{ ans.value_number if ans and ans.value_number is not none else '' }}" {% if not editable %}disabled{% endif %}/>
+          {% elif field.type.value == 'DATE' %}
+            <input class="input" type="date" name="{{ fname }}" value="{{ ans.value_date.isoformat() if ans and ans.value_date else '' }}" {% if not editable %}disabled{% endif %}/>
+          {% elif field.type.value == 'SINGLE_CHOICE' %}
+            <div class="space-y-1">
+              {% for o in field.options %}
+                <label class="flex items-center gap-2 text-sm">
+                  <input type="radio" name="{{ fname }}" value="{{ o.value }}" {% if ans and ans.value_text == o.value %}checked{% endif %} {% if not editable %}disabled{% endif %}/>
+                  {{ o.label }}
+                </label>
+              {% endfor %}
+            </div>
+          {% elif field.type.value == 'MULTI_CHOICE' %}
+            <div class="space-y-1">
+              {% set selected = (ans.value_json if ans and ans.value_json else []) %}
+              {% for o in field.options %}
+                <label class="flex items-center gap-2 text-sm">
+                  <input type="checkbox" name="{{ fname }}" value="{{ o.value }}" {% if o.value in selected %}checked{% endif %} {% if not editable %}disabled{% endif %}/>
+                  {{ o.label }}
+                </label>
+              {% endfor %}
+            </div>
+          {% elif field.type.value == 'DROPDOWN' %}
+            <select class="input" name="{{ fname }}" {% if not editable %}disabled{% endif %}>
+              <option value="">--</option>
+              {% for o in field.options %}
+                <option value="{{ o.value }}" {% if ans and ans.value_text == o.value %}selected{% endif %}>{{ o.label }}</option>
+              {% endfor %}
+            </select>
+          {% elif field.type.value == 'SCALE_1_5' %}
+            <div class="flex gap-2">
+              {% for n in range(1, 6) %}
+                <label class="border px-3 py-1 rounded cursor-pointer">
+                  <input type="radio" name="{{ fname }}" value="{{ n }}" {% if ans and ans.value_number == n %}checked{% endif %} {% if not editable %}disabled{% endif %}/>
+                  {{ n }}
+                </label>
+              {% endfor %}
+            </div>
+          {% elif field.type.value == 'CHECKBOX' %}
+            <label class="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="{{ fname }}" value="1" {% if ans and ans.value_json %}checked{% endif %} {% if not editable %}disabled{% endif %}/>
+              {{ field.label }}
+            </label>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    {% if editable %}
+      <div class="flex gap-2 pt-2 border-t">
+        <button class="btn-secondary" name="action" value="save">Salvar rascunho</button>
+        <button class="btn-primary" name="action" value="submit" onclick="return confirm('Submeter atendimento? Após submeter, ele se torna somente leitura.');">Submeter atendimento</button>
+        <a class="btn-secondary ml-auto" href="{{ url_for('attendances.list_view', student_id=attendance.student_id) }}">Voltar</a>
+      </div>
+    {% else %}
+      <div class="flex justify-end">
+        <a class="btn-secondary" href="{{ url_for('attendances.list_view', student_id=attendance.student_id) }}">Voltar</a>
+      </div>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}

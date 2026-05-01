@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Novo' if mode == 'new' else 'Editar' }} aluno{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  <h1 class="text-xl font-semibold mb-4">{{ 'Novo' if mode == 'new' else 'Editar' }} aluno</h1>
+  <form method="post" class="card space-y-4">
+    {{ form.hidden_tag() }}
+    <div>{{ form.full_name.label(class_="label") }}{{ form.full_name(class_="input") }}</div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>{{ form.birthdate.label(class_="label") }}{{ form.birthdate(class_="input", type="date") }}</div>
+      <div>{{ form.document.label(class_="label") }}{{ form.document(class_="input") }}</div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>{{ form.guardian_name.label(class_="label") }}{{ form.guardian_name(class_="input") }}</div>
+      <div>{{ form.guardian_phone.label(class_="label") }}{{ form.guardian_phone(class_="input") }}</div>
+    </div>
+    <div>{{ form.notes.label(class_="label") }}{{ form.notes(class_="input", rows=3) }}</div>
+    <div class="flex gap-2">
+      {{ form.submit(class_="btn-primary") }}
+      <a href="{{ url_for('students.list_view', school_id=school_id) }}" class="btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

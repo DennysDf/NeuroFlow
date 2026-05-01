@@ -1,0 +1,21 @@
+[project]
+name = "neuroflow"
+version = "0.1.0"
+description = "Sistema de gestão de alunos multi-escola com formulários dinâmicos por categoria de profissional"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]

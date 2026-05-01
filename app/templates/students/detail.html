@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">{{ student.full_name }}</h1>
+      <p class="text-gray-500 text-sm">{{ student.school.name }}</p>
+    </div>
+    <div class="flex gap-2">
+      {% if current_context.role in (RoleEnum.ORG_SUPER_ADMIN, RoleEnum.SCHOOL_ADMIN, RoleEnum.ADMINISTRATIVE) %}
+        <a class="btn-secondary" href="{{ url_for('students.edit', student_id=student.id) }}">Editar</a>
+        <a class="btn-secondary" href="{{ url_for('students.team', student_id=student.id) }}">Equipe</a>
+      {% endif %}
+      {% if current_context.role != RoleEnum.ADMINISTRATIVE %}
+        <a class="btn-primary" href="{{ url_for('attendances.list_view', student_id=student.id) }}">Atendimentos</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card grid grid-cols-2 gap-4 text-sm">
+    <div><div class="text-gray-500">Documento</div>{{ student.document or '-' }}</div>
+    <div><div class="text-gray-500">Nascimento</div>{{ student.birthdate.strftime('%d/%m/%Y') if student.birthdate else '-' }}</div>
+    <div><div class="text-gray-500">Responsável</div>{{ student.guardian_name or '-' }}</div>
+    <div><div class="text-gray-500">Telefone</div>{{ student.guardian_phone or '-' }}</div>
+    {% if student.notes %}<div class="col-span-2"><div class="text-gray-500">Observações</div>{{ student.notes }}</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

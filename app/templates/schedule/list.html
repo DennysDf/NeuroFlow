@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Agenda{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Agenda</h1>
+  <a class="btn-primary" href="{{ url_for('schedule.new', school_id=school_id) }}">+ Novo compromisso</a>
+</div>
+<div class="card p-0 overflow-hidden">
+  <table class="table">
+    <thead><tr><th>Início</th><th>Término</th><th>Profissional</th><th>Aluno</th><th>Local</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for a in appointments %}
+        <tr>
+          <td>{{ a.starts_at.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>{{ a.ends_at.strftime('%H:%M') }}</td>
+          <td>{{ a.professional.user.full_name }}</td>
+          <td>{{ a.student.full_name }}</td>
+          <td>{{ a.location or '-' }}</td>
+          <td><span class="badge bg-gray-100 text-gray-700">{{ a.status.value }}</span></td>
+          <td class="text-right">
+            {% if current_context.role != RoleEnum.PROFESSIONAL %}
+              <form method="post" action="{{ url_for('schedule.delete', school_id=school_id, appt_id=a.id) }}" onsubmit="return confirm('Excluir compromisso?');" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button class="text-red-600 hover:underline">excluir</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="text-center text-gray-500">Nenhum compromisso.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

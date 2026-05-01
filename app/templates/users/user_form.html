@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Novo usuário{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">Novo usuário</h1>
+  <p class="text-sm text-gray-500 mb-4">Se o CPF já existir no sistema, será apenas adicionado um novo vínculo a esta escola.</p>
+  <form method="post" class="card space-y-4">
+    {{ form.hidden_tag() }}
+    <div>{{ form.cpf.label(class_="label") }}{{ form.cpf(class_="input", placeholder="000.000.000-00") }}
+      {% for e in form.cpf.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+    </div>
+    <div>{{ form.full_name.label(class_="label") }}{{ form.full_name(class_="input") }}</div>
+    <div>{{ form.email.label(class_="label") }}{{ form.email(class_="input") }}</div>
+    <div>{{ form.password.label(class_="label") }}{{ form.password(class_="input") }}</div>
+    <div>{{ form.role.label(class_="label") }}{{ form.role(class_="input") }}</div>
+    <div class="flex gap-2">
+      {{ form.submit(class_="btn-primary") }}
+      <a href="{{ url_for('users.school_users', school_id=school_id) }}" class="btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
