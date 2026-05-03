@@ -4,7 +4,45 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}NeuroFlow{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+
+  {# Tailwind via Play CDN (zero-build). Para produção real, compile em static/css/app.css. #}
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  "#eef2ff",
+              100: "#e0e7ff",
+              500: "#6366f1",
+              600: "#4f46e5",
+              700: "#4338ca",
+              900: "#312e81",
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style type="text/tailwindcss">
+    [x-cloak] { display: none !important; }
+
+    @layer components {
+      .btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2; }
+      .btn-primary   { @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500; }
+      .btn-secondary { @apply btn bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 focus:ring-gray-300; }
+      .btn-danger    { @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500; }
+      .input         { @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm; }
+      .label         { @apply block text-sm font-medium text-gray-700 mb-1; }
+      .card          { @apply bg-white shadow rounded-lg p-6; }
+      .badge         { @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium; }
+      .table         { @apply min-w-full divide-y divide-gray-200; }
+      .table thead th { @apply px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 bg-gray-50; }
+      .table tbody td { @apply px-4 py-2 text-sm text-gray-800 border-b border-gray-100; }
+    }
+  </style>
+
   <script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js" defer></script>
   <script src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
